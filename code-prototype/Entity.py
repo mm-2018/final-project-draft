@@ -2,6 +2,7 @@ import random
 
 class EntityInstance: # use OOP paradigm for each entity type
     def __init__(self, etType, etDPS, etDist, pr, etHealth, etUCT):
+        # Entity stats
         self.uniqueRef = random.randint(0, 1024)
         self.entityType = etType
         self.entityType = self.entityType.strip().upper()
@@ -12,6 +13,8 @@ class EntityInstance: # use OOP paradigm for each entity type
         self.fuelAmount = 1000 # for fuel - available runtime in seconds
         self.ammoAmount = 90 # for weapons
         #self.entityETA = None
+
+        # Entity type check - logic should be executed in separate classes instead.
         if self.entityDPS == 0: # prevent divide by zero with fauna or hazardous flora
             self.entityDPS = 0.01
         else:

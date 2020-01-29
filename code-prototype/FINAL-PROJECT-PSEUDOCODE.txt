@@ -1,0 +1,119 @@
+# FINAL PROJECT PSEUDOCODE
+
+class PlayerChar:
+	# use different ε-greedy value for AI for playability
+	var policyTable[]
+	var stateIsTerminal # set terminal state to true if deliver highest reward of possibilities? Iterate through Policy Table at same time as try to run through Utility and/or RL brain.
+	var timeStarve # time health start to decrease from 100 from starvation/thirst. Default/maximum 1600 seconds (26 minutes 40 seconds real time)
+	var timeHealthRecover # time health recovers if health value is at least 75 and timeStarve is at maximum
+	var timeStarve75 # time heath decline from 75 health/
+	var starvationDPS # Default 1 health every 10 seconds (12 minutes 30 seconds real time)
+	var timeDie # time health decrease if at 25 health. Default 500 seconds (8 minutes 20 seconds real time)
+	var timeToKillTarget # taken from other's health divided by self DPS. Set to at least 1600+750+500 if other's TTK is much shorter than own. Add to ETA.
+	var useCompletionTime # inherited from GameEntity interface
+
+function CalculateReward(entity):
+	# also return most appropriate course of action?
+	var entityDamageValue
+	var etaReward
+	var etaCost
+	# CHECK ENTITY TYPE - FLORA, FAUNA, ITEM
+	if entity.damagePerSecond <= 0.01: # prevent divide by zero
+		entityDamageValue = 0.01
+		else:
+		entityDamageValue = entity.damagePerSecond
+	if entity.timeToKillTarget >= PlayerChar.timeToKillTarget: # if attack, not accounted for entities dealing temporary damage
+		etaCost = 2850 # combined values of timeStarve timeDie and starvationDPS times 50
+	else if entity.isDeadly:
+		etaCost += PlayerChar.timeToKillTarget # extra time needed to kill
+	else:
+		etaCost += 0
+	# CHECK ENTITY TYPE -  TOOL, WEAPON
+	if (entity.useCompletionTime * 100) > timeDie: # if time to use tool/weapon times 100 takes longer than to die
+		
+	# CALCULATE REWARD
+	# var damageReward = PlayerChar.damagePerSecond / entityDamageValue
+	var proximityReward = 1 / (0.01 * distance from entity)
+	etaReward = 500 - ((entity.currentPos - PlayerChar.location) / PlayerChar.movementSpeed) + entity.useCompletiontime + etaCost)
+	# ETAreward for using tools?
+	return (proximityReward + etaReward) / 2
+		
+
+	function ScanEnv():
+		# run this every few seconds? Adjust by commands? Ensure synced with Utility and/or RL brain.
+		# find nearest entity
+		if Typeof(entity) is Flora or Water:
+			check if Flora or Water has nItems >= 1
+			determine distance from Flora
+
+		if Typeof(entity) is Fauna:
+			check Fauna subtype and/or their damage per second.
+		
+		if Typeof(entity) is Item:
+			# check if can use for cooking or if can deal damage?
+			if Item is closer than Flora or Water:
+				if Item.dmgToUserPerSecond < 0 and health 0.75: # if can heal player
+					if Fauna is nearby:
+						Equip(item)
+					else:
+						UseItem(item)
+				else:
+				AddToInventory(tool)
+
+	if Typeof(entity) is Weapon:
+		if have no fuel: 
+			refuel
+		if Weapon is closer than Flora or Water:
+			If Weapon.damageOnTarget and health < 0.75:
+				Equip(weapon)
+				if Fauna is nearby and Fauna.damagePerSecond < PlayerCharacter.damagePerSecond:
+					Attack() #?
+					AddToInventory(fauna)
+	
+	if Typeof(entity) is Tool:
+		if have no fuel:
+			refuel
+		if have no resources # (e.g. killed animal, ore):
+			add from inventory or gather.
+	if Typeof(entity) is ProcGenEnv:
+		# scan this in case if fleeing is only safe option.
+		if entity.isPlayerHere == false:
+			# flee here if safest
+return actionTaken #?
+class PolicyItem:
+	constructor PolicyItem(health, damagePerSecond, location, actionTaken, entity, inventoryReference)
+	var health
+	var damagePerSecond
+	var location
+	var actionTaken
+	var entity
+	var inventoryReference
+
+class RLBrain:
+	var stateActionPair
+	var learningRate
+	var rewardDecay
+	var epsilonGreedy
+	function CheckStateExists(state):
+		if state not exist:
+			add new stateActionPair to policyTable
+int mainExec:
+	Inventory inv
+	PolicyItem currentPol = new PolicyItem(0.75, 0.25, Vector3(-29, 20, 6), "idle", ProcGenEnv)
+	RLBrain rx = new RLBrain
+	rx.CheckStateExists(currentPol)
+	
+	
+# Function - heal player
+var rewardVal
+var terminalState
+var entity
+var secondsPassed
+var health = 0.75
+secondsPassed += realWorldSeconds
+if secondsPassed >= 10:
+	secondsPassed = 0
+entity = ScanForEntities()
+
+
+ETAToDie - ETA

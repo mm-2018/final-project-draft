@@ -21,15 +21,17 @@ class Playerchar:
         self.movementSpeed = 3              # used for calculating distance, ETA and related reward values
         self.negativeReward = 0
         self.wakefulness = 500
-        self.currentState = {"Health": self.health, "OtherEntity": self.otherEntity, "Wakefulness": self.wakefulness, "DPS": self.damagePerSecond}
+        self.nextState = None
         self.currentAction = None           # for instance, if asleep, attacking, gathering, etc. Maybe use ScanEnv()?
         #self.predictedState                # same as in currentState, but values are calculation from nextAction
         #self.nextAction
         #self.actionItems = {}
+        self.futureStates = []
         self.policyItem = None              # entities?
-        self.policyItems = None             # make list
+        self.policyItems = []             # make list
         self.currentEnergy = self.MAXENERGY # current energy - will regenerate after a few seconds.
         self.energyCost = 0                 # energy cost to complete an action. For instance, killing an animal costs more energy than foraging.
+        self.currentState = {"Health": self.health, "Wakefulness": self.wakefulness, "Energy: ": self.currentEnergy}
 
     def CalculateStateValues(self):
         return None
@@ -66,7 +68,6 @@ class Playerchar:
 
         self.currentEnergy -= self.energyCost
         print("Energy cost: " + str(self.energyCost))
-        print("Remaining energy: " + str(self.currentEnergy))
         # if item is deadly and/or will cause damage to player, also consider for deduction. Calculate with number of hits
         # if action is interrupted, only take damage.
         # if entity DPS is low, still take damage.
@@ -78,6 +79,9 @@ class Playerchar:
         # reward with time to die minus time to arrive to location plus time to kill enemy/complete action plus negative reward plus 100 times energy cos
         self.etaReward = (self.timeDie) - ((et.entityDist / self.movementSpeed) + et.entityUCT + self.negativeReward + (self.energyCost * 100))
         print("Reward: " + str(self.etaReward))
+        self.nextState = {"Health": self.health, "Wakefulness": self.wakefulness, "Energy: ": self.currentEnergy}
+        print(self.nextState["Energy: "])
+        self.futureStates.append(self.nextState)
         self.currentEnergy = self.MAXENERGY
     def ScanEnv(self, ets):
         print("------------SCANNING ENVIRONMENT------------")
@@ -89,5 +93,4 @@ class Playerchar:
 
     def RLBrain(self):
         # code based on that of MorvanZhou's on Github: https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow
-
         return None

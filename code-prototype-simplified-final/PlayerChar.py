@@ -31,7 +31,7 @@ class Playerchar:
         self.policyItems = []             # make list
         self.currentEnergy = self.MAXENERGY # current energy - will regenerate after a few seconds.
         self.energyCost = 0                 # energy cost to complete an action. For instance, killing an animal costs more energy than foraging.
-        self.currentState = {"Health": self.health, "Wakefulness": self.wakefulness, "Energy: ": self.currentEnergy}
+        self.currentState = {"Health": self.health, "Wakefulness": self.wakefulness, "Energy": self.currentEnergy}
 
     def CalculateStateValues(self):
         return None
@@ -79,9 +79,12 @@ class Playerchar:
         # reward with time to die minus time to arrive to location plus time to kill enemy/complete action plus negative reward plus 100 times energy cos
         self.etaReward = (self.timeDie) - ((et.entityDist / self.movementSpeed) + et.entityUCT + self.negativeReward + (self.energyCost * 100))
         print("Reward: " + str(self.etaReward))
-        self.nextState = {"Health": self.health, "Wakefulness": self.wakefulness, "Energy: ": self.currentEnergy}
-        print(self.nextState["Energy: "])
+        self.nextState = {"Health": self.health, "Wakefulness": self.wakefulness, "Energy": self.currentEnergy}
+        print(self.nextState)
         self.futureStates.append(self.nextState)
+        
+        # reset values for prediction
+        self.health = 1.0
         self.currentEnergy = self.MAXENERGY
     def ScanEnv(self, ets):
         print("------------SCANNING ENVIRONMENT------------")
@@ -91,6 +94,9 @@ class Playerchar:
             print("")
         return None                         # return array of entites as Actions
 
-    def RLBrain(self):
+    def RLBrain(self, cs):
         # code based on that of MorvanZhou's on Github: https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow
+        print("Current state: " + str(cs) + "\n")
+        for i in range (0, len(self.futureStates)):
+            print("Candidate state: " + str(self.futureStates[i]) + "\n")
         return None

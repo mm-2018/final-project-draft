@@ -8,17 +8,19 @@ class EntityInstance: # use OOP paradigm for each entity type
         self.entityType = self.entityType.strip().upper()
         self.entityDist = etDist
         self.PlayerRef = pr
-        self.entityDPS = etDPS
+        self.entityDPS = 1
         self.entityTTK = self.PlayerRef.health / self.entityDPS
         self.fuelAmount = 1000 # for fuel - available runtime in seconds
         self.ammoAmount = 90 # for weapons
         #self.entityETA = None
+        self.entityUCT = 0
+        self.entityHealth = etHealth
 
         # Entity type check - logic should be executed in separate classes instead.
-        if self.entityDPS == 0: # prevent divide by zero with fauna or hazardous flora
-            self.entityDPS = 0.01
-        else:
+        if self.entityDPS is not 0: # prevent divide by zero with fauna or hazardous flora
             self.entityDPS = etDPS
+        else:
+            self.entityDPS = 0.01
 
         if self.entityType == "FLORA" or self.entityType == "ITEM":
             self.entityHealth = etHealth
@@ -31,6 +33,7 @@ class EntityInstance: # use OOP paradigm for each entity type
 
         if self.entityType == "ITEM":
             self.entityDPS = etDPS
+
         print("Stats for " + str(self.entityType) + " " + str(self.uniqueRef) + ": ")
         print("Distance from player (metres): " + str(self.entityDist))
 

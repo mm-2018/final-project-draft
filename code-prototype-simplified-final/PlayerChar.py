@@ -26,6 +26,8 @@ class Playerchar:
         #self.predictedState                # same as in currentState, but values are calculation from nextAction
         #self.nextAction
         #self.actionItems = {}
+        self.policyItem = None              # entities?
+        self.policyItems = None             # make list
         self.currentEnergy = self.MAXENERGY # current energy - will regenerate after a few seconds.
         self.energyCost = 0                 # energy cost to complete an action. For instance, killing an animal costs more energy than foraging.
 
@@ -78,9 +80,14 @@ class Playerchar:
         print("Reward: " + str(self.etaReward))
         self.currentEnergy = self.MAXENERGY
     def ScanEnv(self, ets):
+        print("------------SCANNING ENVIRONMENT------------")
         for i in range (0, len(ets)):
             print(str(ets[i].entityType) + " " + str(ets[i].uniqueRef) + ":\tDistance: " + str(ets[i].entityDist) + "\tDamage: " + str(ets[i].entityDPS) + "\tUCT: " + str(ets[i].entityUCT) + "\tHealth: " + str(ets[i].entityHealth))
             self.CalculateReward(ets[i])
             print("")
-        print("Scanning environment")
         return None                         # return array of entites as Actions
+
+    def RLBrain(self):
+        # code based on that of MorvanZhou's on Github: https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow
+
+        return None

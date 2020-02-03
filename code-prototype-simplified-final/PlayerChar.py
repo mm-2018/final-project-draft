@@ -33,11 +33,12 @@ class Playerchar:
         self.currentEnergy = self.MAXENERGY # current energy - will regenerate after a few seconds.
         self.energyCost = 0                 # energy cost to complete an action. For instance, killing an animal costs more energy than foraging.
         self.currentState = {"Health": self.health, "Wakefulness": self.wakefulness, "Energy": self.currentEnergy}
+        #self.minDistToEntity = 0
 
     def CalculateStateValues(self):
         return None
 
-    def CalculateReward(self, et):
+    def CalculateReward(self, et, minDist):
         #self.proximityReward = 1 / (0.01 * et.entityDist)
         # calculate reward by add time to arrive and time to complete action
         self.timeToKillTarget = et.entityHealth / self.damagePerSecond
@@ -84,11 +85,15 @@ class Playerchar:
         # check entity type here
         # if player is at procGenEnv and is feeling sleepy, and not nearby dangerous fauna, then sleep.
         # reward with time to die minus time to arrive to location plus time to kill enemy/complete action plus negative reward plus 100 times energy cost
-
-        self.etaReward = (self.timeDie) - ((et.entityDist / self.movementSpeed) + et.entityUCT + self.negativeReward + (self.energyCost * 100))
-        print("Reward: " + str(self.etaReward))
+        if et.entityDist <= minDist:
+            print("Using " + str(et.entityType) + " as active state...")
+            self.etaReward = 0
+            print("Reward: " + str(self.etaReward))
+        else:
+            self.etaReward = (self.timeDie) - ((et.entityDist / self.movementSpeed) + et.entityUCT + self.negativeReward + (self.energyCost * 100))
+            print("Reward: " + str(self.etaReward))
         self.nextState = {"Health": self.health, "Wakefulness": self.wakefulness, "Energy": self.currentEnergy}
-        print(self.nextState)
+        print("Next state: " + str(self.nextState))
         self.futureStates.append(self.nextState)
         
         # reset values for prediction
@@ -102,10 +107,13 @@ class Playerchar:
                 smallestDistance = ets[i].entityDist
                 self.currentAction = ets[i]
                 #ets[i].isCurrentAction = True
-            print(str(ets[i].entityType) + " " + str(ets[i].uniqueRef) + ":\tDistance: " + str(ets[i].entityDist) + "\tDamage: " + str(ets[i].entityDPS) + "\tUCT: " + str(ets[i].entityUCT) + "\tHealth: " + str(ets[i].entityHealth))
             print("Shortest distance: " + str(smallestDistance))
-            self.CalculateReward(ets[i])
-            print("")
+            #print("")
+        for i in range (0, len(ets)):
+            print(str(ets[i].entityType) + " " + str(ets[i].uniqueRef) + ":\tDistance: " + str(ets[i].entityDist) + "\tDamage: " + str(ets[i].entityDPS) + "\tUCT: " + str(ets[i].entityUCT) + "\tHealth: " + str(ets[i].entityHealth))
+            self.CalculateReward(ets[i], smallestDistance)
+            print("\n")
+        #self.minDistToEntity = smallestDistance
         return None                         # return array of entites as Actions
 
     def RLBrain(self, cs):

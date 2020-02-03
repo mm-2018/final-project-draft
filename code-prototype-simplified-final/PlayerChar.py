@@ -25,6 +25,7 @@ class Playerchar:
         self.currentAction = None           # for instance, if asleep, attacking, gathering, etc. Maybe use ScanEnv()?
         #self.predictedState                # same as in currentState, but values are calculation from nextAction
         self.nextAction = None
+        self.futureActions = []
         #self.nextAction
         #self.actionItems = {}
         self.futureStates = []
@@ -89,13 +90,15 @@ class Playerchar:
             print("Using " + str(et.entityType) + " as active state...")
             self.etaReward = 0
             print("Reward: " + str(self.etaReward))
+            self.currentAction = et
         else:
             self.etaReward = (self.timeDie) - ((et.entityDist / self.movementSpeed) + et.entityUCT + self.negativeReward + (self.energyCost * 100))
             print("Reward: " + str(self.etaReward))
-        self.nextState = {"Health": self.health, "Wakefulness": self.wakefulness, "Energy": self.currentEnergy}
-        print("Next state: " + str(self.nextState))
-        self.futureStates.append(self.nextState)
-        
+            self.nextState = {"Health": self.health, "Wakefulness": self.wakefulness, "Energy": self.currentEnergy}
+            self.nextAction = et
+            self.futureStates.append(self.nextState)
+            self.futureActions.append(self.nextAction)
+            print("Next state: " + str(self.nextState))
         # reset values for prediction
         self.health = 1.0
         self.currentEnergy = self.MAXENERGY
@@ -105,7 +108,7 @@ class Playerchar:
         for i in range (0, len(ets)):
             if i > 0 and ets[i].entityDist < smallestDistance: # try to set current state for player's current location
                 smallestDistance = ets[i].entityDist
-                self.currentAction = ets[i]
+                #self.currentAction = ets[i]
                 #ets[i].isCurrentAction = True
             print("Shortest distance: " + str(smallestDistance))
             #print("")
@@ -121,5 +124,8 @@ class Playerchar:
         print("Current state: " + str(cs))
         print("Current action: " + str(self.currentAction.entityType) + "\n")
         for i in range (0, len(self.futureStates)):
-            print("Candidate state: " + str(self.futureStates[i]) + "\n")
+            print("Candidate state: " + "\t" + str(self.futureStates[i]))
+            print("Candidate action: " + "\t" + str(self.futureActions[i].entityType) + " " + str(self.futureActions[i].uniqueRef) + ":\tDistance: " + str(self.futureActions[i].entityDist) + "\tDamage: " + str(self.futureActions[i].entityDPS) + "\tUCT: " + str(self.futureActions[i].entityUCT) + "\tHealth: " + str(self.futureActions[i].entityHealth))
+            print("")
         return None
+        # set action as terminal if action is chosen and player is in close proximity to it or completed.

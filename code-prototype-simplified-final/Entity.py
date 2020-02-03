@@ -16,6 +16,7 @@ class EntityInstance: # use OOP paradigm for each entity type
         self.entityUCT = 0
         self.entityHealth = etHealth
         self.isCurrentAction = False
+        self.isTerminal = False
 
         # Entity type check - logic should be executed in separate classes instead.
         if self.entityDPS == 0: # prevent divide by zero with fauna or hazardous flora

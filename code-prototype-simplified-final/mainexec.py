@@ -1,6 +1,7 @@
 import PlayerChar, Entity, random, os
 os.system("cls")
-player1 = PlayerChar.Playerchar()
+player1 = PlayerChar.Playerchar(round(random.uniform(0.1, 1), 2), round(random.uniform(0.1, 1), 2))
+
 # find a way to prevent generation of zero before assigning values to variables
 randDmg = [round(random.uniform(-0.5, 1), 2), round(random.uniform(-0.5, 1), 2), round(random.uniform(-0.5, 1), 2), 0.01]
 randDist = [round(random.uniform(1, 250), 2), round(random.uniform(1, 250), 2), round(random.uniform(1, 250), 2), 0]

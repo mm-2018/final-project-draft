@@ -1,3 +1,4 @@
+import random
 class Playerchar:
     
     def __init__(self, ch, ce):
@@ -30,6 +31,7 @@ class Playerchar:
         self.energy = self.currentEnergy    # use for prediction.
         self.energyCost = 0                 # energy cost to complete an action. For instance, killing an animal costs more energy than foraging.
         self.currentState = {"Health": self.health, "Energy": self.energy}
+        self.chosenAction = None
         #self.minDistToEntity = 0
 
     def CalcReward(self, et, minDist):
@@ -53,7 +55,7 @@ class Playerchar:
             self.negativeReward += 0
             pass
         self.health -= et.entityDPS * self.timeToKillTarget # only do this if RLBrain chooses to go forward with this action.
-        
+
         # clamp health values
         if self.health <= 0:
             self.health = 0
@@ -91,7 +93,7 @@ class Playerchar:
             self.futureStates.append(self.nextState)
             self.futureActions.append(self.nextAction)
             print("Next state: " + str(self.nextState))
-        
+
         # reset values for prediction
         self.health = self.currentHealth
         self.energy = self.currentEnergy
@@ -115,6 +117,10 @@ class Playerchar:
             #self.CalculateReward(ets[i], smallestDistance)
             ets[i].rewardValue = self.CalcReward(ets[i], smallestDistance)
             print("Reward: " + str(ets[i].rewardValue))
+            if ets[i].rewardValue > 0:
+                ets[i].isTerminal = True
+            else:
+                ets[i].isTerminal = False
             print("\n")
         #self.minDistToEntity = smallestDistance
         return None                         # return array of entites as Actions
@@ -129,14 +135,22 @@ class Playerchar:
         eGreedyEpsilon = 0.9
         print("Current state: " + str(cs))
         print("Current action: " + str(ca.entityType) + " " + str(ca.uniqueRef) + "\n")
+        randVal = round(random.uniform(0, 1), 2)
+        if randVal < eGreedyEpsilon: # choose best action
+            print("Random value: " + str(randVal))
+            self.chosenAction = 
+            pass
         for i in range (0, len(fs)):
             print("Candidate state: " + "\t" + str(fs[i]))
-            print("Candidate action: " + "\t" + str(fa[i].entityType) + " " + str(fa[i].uniqueRef) + ":\tDistance: " + str(fa[i].entityDist) + "\tDamage: " + str(fa[i].entityDPS) + "\tUCT: " + str(fa[i].entityUCT) + "\tHealth: " + str(fa[i].entityHealth) + "\tReward: " + str(fa[i].rewardValue))
+            print("Candidate action: " + "\t" + str(fa[i].entityType) + " " + str(fa[i].uniqueRef) + ":\tDistance: " + str(fa[i].entityDist) + "\tDamage: " + str(fa[i].entityDPS) + "\tUCT: " + str(fa[i].entityUCT) + "\tHealth: " + str(fa[i].entityHealth) + "\tReward: " + str(fa[i].rewardValue) + "\tIs terminal? " + str(fa[i].isTerminal))
             print("")
         for i in range (0, len(fa)):
             if not fa[i].isTerminal:
-                #qTarget = fa[i].CalculateReward
+                #qTarget = fa[i].rewardValue + rewardDecayGamma * fs[i]
+                #print("Q-target: " + qTarget)
                 pass
+            else:
+                print("Q-target: " + str(fa[i].rewardValue))
 
         return None # possibly return subsequent action and staet?
         # set action as terminal if action is chosen and player is in close proximity to it or completed.

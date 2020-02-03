@@ -102,6 +102,7 @@ class Playerchar:
         # reset values for prediction
         self.health = 1.0
         self.currentEnergy = self.MAXENERGY
+    
     def ScanEnv(self, ets):
         print("------------SCANNING ENVIRONMENT------------")
         smallestDistance = 25000
@@ -119,13 +120,24 @@ class Playerchar:
         #self.minDistToEntity = smallestDistance
         return None                         # return array of entites as Actions
 
-    def RLBrain(self, cs):
+    def RLBrain(self, cs, ca, fs, fa):
         # code based on that of MorvanZhou's on Github: https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow
+        predictedState = None
+        predictedAction = None
+        qTarget = None
+        learningRateAlpha = 0.01
+        rewardDecayGamma = 0.9
+        eGreedyEpsilon = 0.9
         print("Current state: " + str(cs))
-        print("Current action: " + str(self.currentAction.entityType) + "\n")
-        for i in range (0, len(self.futureStates)):
-            print("Candidate state: " + "\t" + str(self.futureStates[i]))
-            print("Candidate action: " + "\t" + str(self.futureActions[i].entityType) + " " + str(self.futureActions[i].uniqueRef) + ":\tDistance: " + str(self.futureActions[i].entityDist) + "\tDamage: " + str(self.futureActions[i].entityDPS) + "\tUCT: " + str(self.futureActions[i].entityUCT) + "\tHealth: " + str(self.futureActions[i].entityHealth))
+        print("Current action: " + str(ca.entityType) + "\n")
+        for i in range (0, len(fs)):
+            print("Candidate state: " + "\t" + str(fs[i]))
+            print("Candidate action: " + "\t" + str(fa[i].entityType) + " " + str(fa[i].uniqueRef) + ":\tDistance: " + str(fa[i].entityDist) + "\tDamage: " + str(fa[i].entityDPS) + "\tUCT: " + str(fa[i].entityUCT) + "\tHealth: " + str(fa[i].entityHealth))
             print("")
-        return None
+        for i in range (0, len(fa)):
+            if not fa[i].isTerminal:
+                #qTarget = fa[i].CalculateReward
+                pass
+
+        return None # possibly return subsequent action and staet?
         # set action as terminal if action is chosen and player is in close proximity to it or completed.

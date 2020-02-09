@@ -1,40 +1,43 @@
 import random
 class Playerchar:
     
-    def __init__(self, ch, ce):
-        # Constant values, in seconds       # Notes
+    def __init__(self, ch, ce):             # Notes
+
+        # Constant values, non-float values in seconds
         self.MAXTIMESTARVE = 1600
         self.TIMEHEALTHRECOVER = 250        # if at least 75 and timeStarve > 0
         self.STARVATIONDPS = 0.01
         self.MAXTIMETODIE = 500
         self.MAXENERGY = 1.0                # maximum energy
 
-        # current stats
+        # Current
         self.currentHealth = ch             # player's current health, will change.
-        self.health = self.currentHealth         # player's current health, used for prediction
-        self.otherEntity = None             # other entity can be unequipped item, flora, fauna. If item equipped, let this affect player accordingly
+        self.health = self.currentHealth    # player's current health, used for prediction
+        self.otherEntity = None             # other entity can be unequipped item, flora, fauna. If item equipped, let this affect the player accordingly
         self.timeStarve = 1600              # starvation value
         self.damagePerSecond = 0.25         # damage player can deal - can change with picked up weapon
+        self.currentEnergy = ce             # current energy - will regenerate after a few seconds.
+        self.energy = self.currentEnergy    # use for prediction.
+        self.energyCost = 0                 # energy cost to complete an action. For instance, killing an animal costs more energy than foraging.
+
+        # Interaction
         self.timeDie = self.MAXTIMETODIE
-        self.timeToKillTarget = None        # need to consider variety in Entity class
+        self.timeToKillTarget = None        # some entities use time to complete as opposed to time to die
         self.calculatedReward = None
         self.movementSpeed = 3              # used for calculating distance, ETA and related reward values
         self.negativeReward = 0
+
+        # States and actions
+        self.currentState = {"Health": self.health, "Energy": self.energy}
         self.nextState = None
         self.currentAction = None           # for instance, if asleep, attacking, gathering, etc. Maybe use ScanEnv()?
         self.nextAction = None
         self.futureActions = []
         self.futureStates = []
-        self.policyItem = None              # entities?
-        self.policyItems = []               # make list
-        self.currentEnergy = ce             # current energy - will regenerate after a few seconds.
-        self.energy = self.currentEnergy    # use for prediction.
-        self.energyCost = 0                 # energy cost to complete an action. For instance, killing an animal costs more energy than foraging.
-        self.currentState = {"Health": self.health, "Energy": self.energy}
         self.chosenAction = None
-        #self.minDistToEntity = 0
 
     def CalcReward(self, et, minDist):
+
         self.timeToKillTarget = et.entityHealth / self.damagePerSecond
 
         print("Player time to kill target: " + str(self.timeToKillTarget))
@@ -44,16 +47,15 @@ class Playerchar:
         # deduct health by how much entity damage player times how long entity stayed alive.
         if et.entityDPS < 0:
             et.entityTTK = et.entityTTK*-1 # prevent negative reward
-        elif et.entityTTK <= self.timeToKillTarget and et.entityTTK > -0.01:
+        elif et.entityTTK <= self.timeToKillTarget and et.entityTTK > -0.01: # if entity can kill player faster and can deal positive damage
             print("Do not engage " + et.entityType + " " + str(et.uniqueRef) + ". It is highly dangerous!")
             self.negativeReward = self.MAXTIMESTARVE + self.MAXTIMETODIE + (self.STARVATIONDPS * 50)
             print(self.negativeReward)
-        elif et.entityTTK < -0.01:
-            #self.negativeReward -= et.entityTTK*100 # boost reward if entity can heal
+        elif et.entityTTK < -0.01: # else boost reward if entity can heal player
             print("This will heal the player.")
         else:
             self.negativeReward += 0
-            pass
+
         self.health -= et.entityDPS * self.timeToKillTarget # only do this if RLBrain chooses to go forward with this action.
 
         # clamp health values
@@ -78,23 +80,20 @@ class Playerchar:
         print("Energy cost: " + str(self.energyCost))
 
         # calculate reward based on player's remaining time to die
-        # check entity type here
         # reward with time to die minus time to arrive to location plus time to kill enemy/complete action plus negative reward plus 100 times energy cost
-        if et.entityDist <= minDist:
+        if et.entityDist <= minDist: # set nearest entity as current - most likely PROCGENENV
             print("Using " + str(et.entityType) + " as active state...")
             self.etaReward = 0
-            #print("Reward: " + str(self.etaReward))
             self.currentAction = et
-        else:
+        else: # calculate reward
             self.etaReward = (self.timeDie) - ((et.entityDist / self.movementSpeed) + et.entityUCT + self.negativeReward + (self.energyCost * 100))
-            #print("Reward: " + str(self.etaReward))
             self.nextState = {"Health": self.health, "Energy": self.energy}
             self.nextAction = et
             self.futureStates.append(self.nextState)
             self.futureActions.append(self.nextAction)
             print("Next state: " + str(self.nextState))
 
-        # reset values for prediction
+        # reset values for next prediction
         self.health = self.currentHealth
         self.energy = self.currentEnergy
         rewardVal = self.etaReward
@@ -106,15 +105,12 @@ class Playerchar:
         for i in range (0, len(ets)):
             if i > 0 and ets[i].entityDist < smallestDistance: # try to set current state for player's current location
                 smallestDistance = ets[i].entityDist
-                #self.currentAction = ets[i]
-                #ets[i].isCurrentAction = True
             print("Shortest distance: " + str(smallestDistance))
             # do not excute anything else at this point - more than one entity will be assigned the current state otherwise!
 
-        # run loop again, as smallest distance has been finalized.
+        # run loop again, as smallest distance has been finalized at this point.
         for i in range (0, len(ets)):
             print(str(ets[i].entityType) + " " + str(ets[i].uniqueRef) + ":\tDistance: " + str(ets[i].entityDist) + "\tDamage: " + str(ets[i].entityDPS) + "\tUCT: " + str(ets[i].entityUCT) + "\tHealth: " + str(ets[i].entityHealth) + "\tReward: " + str(ets[i].rewardValue))
-            #self.CalculateReward(ets[i], smallestDistance)
             ets[i].rewardValue = self.CalcReward(ets[i], smallestDistance)
             print("Reward: " + str(ets[i].rewardValue))
             if ets[i].rewardValue > 0:
@@ -122,5 +118,4 @@ class Playerchar:
             else:
                 ets[i].isTerminal = False
             print("\n")
-        #self.minDistToEntity = smallestDistance
-        return None                         # return array of entites as Actions
+        return None                         # should possibly return array of entities as Actions

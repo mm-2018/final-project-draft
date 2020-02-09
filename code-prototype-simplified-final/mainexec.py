@@ -14,4 +14,3 @@ et3 = Entity.EntityInstance("ITEM", randDmg[2], randDist[2], player1, randHealth
 et4 = Entity.EntityInstance("PROCGENENV", randDmg[3], randDist[3], player1, randHealth[3], randUCT[3])
 entities = [et1, et2, et3, et4]
 player1.ScanEnv(entities)
-player1.RLBrain(player1.currentState, player1.currentAction, player1.futureStates, player1.futureActions)

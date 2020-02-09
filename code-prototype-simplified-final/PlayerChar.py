@@ -124,33 +124,3 @@ class Playerchar:
             print("\n")
         #self.minDistToEntity = smallestDistance
         return None                         # return array of entites as Actions
-
-    def RLBrain(self, cs, ca, fs, fa):
-        # code based on that of MorvanZhou's on Github: https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow
-        predictedState = None
-        predictedAction = None
-        qTarget = None
-        learningRateAlpha = 0.01
-        rewardDecayGamma = 0.9
-        eGreedyEpsilon = 0.9
-        print("Current state: " + str(cs))
-        print("Current action: " + str(ca.entityType) + " " + str(ca.uniqueRef) + "\n")
-        randVal = round(random.uniform(0, 1), 2)
-        if randVal < eGreedyEpsilon: # choose best action
-            print("Random value: " + str(randVal))
-            self.chosenAction = 
-            pass
-        for i in range (0, len(fs)):
-            print("Candidate state: " + "\t" + str(fs[i]))
-            print("Candidate action: " + "\t" + str(fa[i].entityType) + " " + str(fa[i].uniqueRef) + ":\tDistance: " + str(fa[i].entityDist) + "\tDamage: " + str(fa[i].entityDPS) + "\tUCT: " + str(fa[i].entityUCT) + "\tHealth: " + str(fa[i].entityHealth) + "\tReward: " + str(fa[i].rewardValue) + "\tIs terminal? " + str(fa[i].isTerminal))
-            print("")
-        for i in range (0, len(fa)):
-            if not fa[i].isTerminal:
-                #qTarget = fa[i].rewardValue + rewardDecayGamma * fs[i]
-                #print("Q-target: " + qTarget)
-                pass
-            else:
-                print("Q-target: " + str(fa[i].rewardValue))
-
-        return None # possibly return subsequent action and staet?
-        # set action as terminal if action is chosen and player is in close proximity to it or completed.
